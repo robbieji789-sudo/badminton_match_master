@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const BadmintonApp());
-}
+void main() => runApp(const BadmintonApp());
 
 class BadmintonApp extends StatelessWidget {
   const BadmintonApp({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ScorePage(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(home: ScorePage());
 }
 
 class ScorePage extends StatefulWidget {
@@ -21,11 +14,13 @@ class ScorePage extends StatefulWidget {
 }
 
 class _ScorePageState extends State<ScorePage> {
-  // 核心变量：存储 A 队和 B 队的比分
   int scoreA = 0;
   int scoreB = 0;
+  String serverTeam = 'A'; // 当前发球方 [cite: 107]
 
-  // 加分函数：通过 setState 通知 Flutter 刷新界面
+  // 简易判断：偶数右区(Right)，奇数左区(Left)
+  String get serverArea => (serverTeam == 'A' ? scoreA : scoreB) % 2 == 0 ? "右区" : "左区";
+
   void _incrementScore(String team) {
     setState(() {
       if (team == 'A') {
@@ -33,44 +28,41 @@ class _ScorePageState extends State<ScorePage> {
       } else {
         scoreB++;
       }
+      serverTeam = team; // 得分方获得发球权 [cite: 65]
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("羽毛球对局助手 - 基础版")),
+      appBar: AppBar(title: const Text("阶段 2 - 逻辑校验")),
       body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // A 队计分列
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Text("当前发球方：$serverTeam 队", style: TextStyle(fontSize: 22, color: Colors.blue)),
+            Text("发球区：$serverArea", style: TextStyle(fontSize: 22, color: Colors.red)),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text("A 队", style: TextStyle(fontSize: 24)),
-                Text("$scoreA", style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold)),
-                ElevatedButton(
-                  onPressed: () => _incrementScore('A'),
-                  child: const Text("A 队加分"),
-                ),
-              ],
-            ),
-            // B 队计分列
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("B 队", style: TextStyle(fontSize: 24)),
-                Text("$scoreB", style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold)),
-                ElevatedButton(
-                  onPressed: () => _incrementScore('B'),
-                  child: const Text("B 队加分"),
-                ),
+                _scoreButton('A', scoreA),
+                _scoreButton('B', scoreB),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _scoreButton(String team, int score) {
+    return Column(
+      children: [
+        Text("$team 队", style: const TextStyle(fontSize: 20)),
+        Text("$score", style: const TextStyle(fontSize: 60, fontWeight: FontWeight.bold)),
+        ElevatedButton(onPressed: () => _incrementScore(team), child: Text("$team 队得分")),
+      ],
     );
   }
 }
